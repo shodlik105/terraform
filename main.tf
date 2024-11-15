@@ -7,12 +7,27 @@ terraform {
   }
 }
 
+resource "docker_image" "nginx" {
+  name = var.image_nginx_name
+}
+
+resource "docker_container" "nginx" {
+  name  = var.container_nginx_name
+  image = docker_image.nginx.repo_digest
+
+ ports {
+    internal = var.internal_nginx_port
+    external = var.external_nginx_port
+  }
+  depends_on = [docker_container.postgres]
+  }
+
 resource "docker_image" "postgres" {
-  name = "postgres:latest"
+  name = var.image_postgres_name
 }
 
 resource "docker_container" "postgres" {
-  name  = "postgres-container"
+  name  = var.container_postgres_name
   image = docker_image.postgres.repo_digest
 
   env = [
@@ -22,7 +37,7 @@ resource "docker_container" "postgres" {
   ]
 
   ports {
-    internal = 5432
-    external = 5432
+    internal = var.internal_postgres_port
+    external = var.external_postgres_port
   }
 }
